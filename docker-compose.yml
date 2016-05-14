@@ -1,9 +1,21 @@
+elasticsearch_assets:
+  image: elasticsearch:latest
+  volumes:
+    - /tmp/elk/elasticsearch/data:/usr/share/elasticsearch/data
+    - /tmp/elk/elasticsearch/logs:/usr/share/elasticsearch/logs
+  command: /bin/true
 elasticsearch:
   image: elasticsearch:latest
   command: elasticsearch -Des.network.host=0.0.0.0
+  volumes_from:
+    - elasticsearch_assets:rw
   ports:
     - "9200:9200"
     - "9300:9300"
+  # volumes:
+    # - ./elasticsearch/config:/usr/share/elasticsearch/config
+    # - ./elasticsearch/data:/usr/share/elasticsearch/data
+    # - ./elasticsearch/logs:/usr/share/elasticsearch/logs
 logstash:
   build: logstash/
   command: logstash -f /etc/logstash/conf.d/logstash.conf
