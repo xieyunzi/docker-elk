@@ -5,24 +5,29 @@ elasticsearch:
     - ${ELASTICSEARCH_PORT_9200}
     - ${ELASTICSEARCH_PORT_9300}
   volumes:
+    - /etc/localtime:/etc/localtime:ro
     - ./elasticsearch/data:/usr/share/elasticsearch/data
 
 logstash:
   build: logstash/
   command: logstash -f /etc/logstash/conf.d/logstash.conf
   volumes:
+    - /etc/localtime:/etc/localtime:ro
     - ./logstash/config:/etc/logstash/conf.d
     - ./logstash/patterns:/etc/logstash/patterns
   ports:
-    - ${LOGSTASH_PORT_5000}
+    - ${LOGSTASH_PORT_5000_TCP}
+    - ${LOGSTASH_PORT_5000_UDP}
     - ${LOGSTASH_PORT_5001}
-    - ${LOGSTASH_PORT_12201}
+    - ${LOGSTASH_PORT_12201_TCP}
+    - ${LOGSTASH_PORT_12201_UDP}
   links:
     - elasticsearch
 
 kibana:
   build: kibana/
   volumes:
+    - /etc/localtime:/etc/localtime:ro
     - ./kibana/config/:/opt/kibana/config/
   ports:
     - ${KIBANA_PORT_5601}
