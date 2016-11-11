@@ -1,4 +1,4 @@
-FROM logstash:2.4.0
+FROM logstash:5
 
 # Add your logstash plugins setup here
-# Example: RUN logstash-plugin install logstash-filter-json 
+# Example: RUN logstash-plugin install logstash-filter-json

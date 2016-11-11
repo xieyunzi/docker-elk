@@ -1,36 +1,44 @@
-elasticsearch:
-  image: elasticsearch:2.4.0
-  command: elasticsearch -Des.network.host=0.0.0.0
-  ports:
-    - ${ELASTICSEARCH_PORT_9200}
-    - ${ELASTICSEARCH_PORT_9300}
-  volumes:
-    - /etc/localtime:/etc/localtime:ro
-    - ./elasticsearch/data:/usr/share/elasticsearch/data
+version: '2'
 
-logstash:
-  build: logstash/
-  command: logstash -f /etc/logstash/conf.d/logstash.conf
-  volumes:
-    - /etc/localtime:/etc/localtime:ro
-    - ./logstash/config:/etc/logstash/conf.d
-    - ./logstash/patterns:/etc/logstash/patterns
-  ports:
-    - ${LOGSTASH_PORT_5000_TCP}
-    - ${LOGSTASH_PORT_5000_UDP}
-    - ${LOGSTASH_PORT_5001}
-    - ${LOGSTASH_PORT_5044}
-    - ${LOGSTASH_PORT_12201_TCP}
-    - ${LOGSTASH_PORT_12201_UDP}
-  links:
-    - elasticsearch
+services:
+  elasticsearch:
+    build: elasticsearch/
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./elasticsearch/data:/usr/share/elasticsearch/data
+    ports:
+      - ${ELASTICSEARCH_PORT_9200}
+      - ${ELASTICSEARCH_PORT_9300}
+    environment:
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+    networks:
+      - docker_elk
+  logstash:
+    build: logstash/
+    command: -f /etc/logstash/conf.d/
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./logstash/config:/etc/logstash/conf.d
+      - ./logstash/patterns:/etc/logstash/patterns
+    ports:
+      - ${LOGSTASH_PORT_5000_TCP}
+      - ${LOGSTASH_PORT_5000_UDP}
+      - ${LOGSTASH_PORT_5001}
+      - ${LOGSTASH_PORT_5044}
+      - ${LOGSTASH_PORT_12201_TCP}
+      - ${LOGSTASH_PORT_12201_UDP}
+    networks:
+      - docker_elk
+  kibana:
+    build: kibana/
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./kibana/config/:/opt/kibana/config/
+    ports:
+      - ${KIBANA_PORT_5601}
+    networks:
+      - docker_elk
 
-kibana:
-  build: kibana/
-  volumes:
-    - /etc/localtime:/etc/localtime:ro
-    - ./kibana/config/:/opt/kibana/config/
-  ports:
-    - ${KIBANA_PORT_5601}
-  links:
-    - elasticsearch
+networks:
+  docker_elk:
+    driver: bridge
